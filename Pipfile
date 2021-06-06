@@ -24,6 +24,7 @@ sphinx-mathjax-offline = "*"
 pyparsing = "*"
 npyscreen = "*"
 kivy = {extras = ["full"], version = "*"}
+sphinx-rtd-theme = "*"
 
 [dev-packages]
 
