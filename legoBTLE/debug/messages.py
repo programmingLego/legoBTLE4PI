@@ -4,8 +4,8 @@
 
     Various attempts to color the output.
     
-    :copyright: Copyright 2020-2021 by Dietrich Christopeit, see AUTHORS.rst.
-    :license: MIT, see LICENSE.rst for details
+    :copyright: Copyright 2020-2021 by Dietrich Christopeit, see AUTHORS.
+    :license: MIT, see LICENSE for details
 """
 
 from colorama import Back, Fore, Style

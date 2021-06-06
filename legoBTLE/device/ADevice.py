@@ -562,7 +562,7 @@ class ADevice(ABC):
                     debug_info_footer(f"{cmd_id} +++ [{self.name}:{self.port}]", debug=debug)
                     raise ire
                 else:
-                    UpStreamMessageBuilder(data=data, debug=debug).build()
+                    UpStreamMessageBuilder(data=data, debug=debug).dispatch()
                     if delay_after is not None:
                         debug_info_begin(
                             f"{cmd_id} +++ [{self.name}:{self.port}]: DELAY_AFTER / WAITING FOR {delay_after}",
@@ -869,7 +869,7 @@ class ADevice(ABC):
             (bool): Flag indicating Success/Failure.
             
         """
-        RETURN_MESSAGE = UpStreamMessageBuilder(data, debug=True).build()
+        RETURN_MESSAGE = UpStreamMessageBuilder(data, debug=True).dispatch()
         if RETURN_MESSAGE.m_header.m_type == MESSAGE_TYPE.UPS_DNS_EXT_SERVER_CMD:
             await self.ext_srv_notification_set(RETURN_MESSAGE, debug=self.debug)
         elif RETURN_MESSAGE.m_header.m_type == MESSAGE_TYPE.UPS_PORT_VALUE:

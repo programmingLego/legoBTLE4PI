@@ -59,7 +59,7 @@ if os.name == 'posix':
                 Nothing
             """
             print(f"[BTLEDelegate]-[MSG]: Returned NOTIFICATION = {data.hex()}")
-            M_RET = UpStreamMessageBuilder(data, debug=True).build()
+            M_RET = UpStreamMessageBuilder(data, debug=True).dispatch()
             
             try:
                 if (M_RET is not None) and (M_RET.m_header.m_type == MESSAGE_TYPE.UPS_HUB_ATTACHED_IO) and (M_RET.m_io_event == PERIPHERAL_EVENT.VIRTUAL_IO_ATTACHED):
@@ -243,7 +243,7 @@ async def _listen_clients(reader: StreamReader, writer: StreamWriter, debug: boo
                         
                         ACK_MSG_DATA: bytearray = CLIENT_MSG_DATA
                         ACK_MSG_DATA[-1:] = PERIPHERAL_EVENT.EXT_SRV_CONNECTED
-                        ACK_MSG = UpStreamMessageBuilder(data=ACK_MSG_DATA, debug=True).build()
+                        ACK_MSG = UpStreamMessageBuilder(data=ACK_MSG_DATA, debug=True).dispatch()
                         
                         connectedDevices[con_key_index][1].write(ACK_MSG.COMMAND[0:1])
                         await connectedDevices[con_key_index][1].drain()

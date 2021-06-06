@@ -1,5 +1,5 @@
 /media/pi/P7Touch/Projects/project-cimino/venv/bin/python /media/pi/P7Touch/pycharm-community-2020.3.2/plugins/python-ce/helpers/pydev/pydevd.py --multiproc --qt-support=auto --client 127.0.0.1 --port 40927 --file /media/pi/P7Touch/Projects/project-cimino/Tests/NewDesignTests/HubAndMotorsTest.py
-Connected to pydev debugger (build 203.6682.179)
+Connected to pydev debugger (dispatch 203.6682.179)
 [Threaded Hub]-[MSG]: TRYING TO CONNECT TO 90:84:2B:5E:CF:1F...
 [Threaded Hub]-[MSG]: CONNECTION SUCCESSFUL TO 90:84:2B:5E:CF:1F...
 [Threaded Hub]-[MSG]: OFFICIAL NAME: Technic Hub

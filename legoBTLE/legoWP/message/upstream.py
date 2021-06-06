@@ -9,8 +9,8 @@
     .. seealso::
         :class:`legoBTLE.legoWP.message.downstream.DOWNSTREAM_MESSAGE`
     
-    :copyright: Copyright 2020-2021 by Dietrich Christopeit, see AUTHORS.rst.
-    :license: MIT, see LICENSE.rst for details
+    :copyright: Copyright 2020-2021 by Dietrich Christopeit, see AUTHORS.
+    :license: MIT, see LICENSE for details
 """
 # UPS == UPSTREAM === FROM DEVICE
 # DNS == DOWNSTREAM === TO DEVICE
@@ -45,7 +45,7 @@ class UpStreamMessageBuilder:
         self._lastBuildPort: int = -1
         return
     
-    def build(self):
+    def dispatch(self):
         """Builds the upstream messages according to the header info.
         
         Returns
@@ -54,67 +54,19 @@ class UpStreamMessageBuilder:
             The upstream message determined by the header.
             
         """
-        debug_info(f"[{self.__class__.__name__}]-[MSG]: DATA RECEIVED FOR PORT [{self._data[3]}], "
-                   f"STARTING UPSTREAMBUILDING: "
-                   f"{self._data.hex()}, {self._data[2]}\r\n RAW: {self._data}\r\nMESSAGE_TYPE: {self._header.m_type.hex()}", debug=self._debug)
-        if self._header.m_type == MESSAGE_TYPE.UPS_DNS_HUB_ACTION:
-            debug_info(f"GENERATING HUB_ACTION_NOTIFICATION for PORT {self._data[3]}", debug=self._debug)
-            ret = HUB_ACTION_NOTIFICATION(self._data)
-            self._lastBuildPort = -1
-            return ret
-        
-        elif self._header.m_type == MESSAGE_TYPE.UPS_HUB_ATTACHED_IO:
-            debug_info(f"GENERATING HUB_ATTACHED_IO_NOTIFICATION for PORT {self._data[3]}", debug=self._debug)
-            ret = HUB_ATTACHED_IO_NOTIFICATION(self._data)
-            self._lastBuildPort = ret.m_port
-            return ret
-        
-        elif self._header.m_type == MESSAGE_TYPE.UPS_HUB_GENERIC_ERROR:
-            debug_info(f"GENERATING DEV_GENERIC_ERROR_NOTIFICATION for PORT {self._data[3]}", debug=self._debug)
-            ret = DEV_GENERIC_ERROR_NOTIFICATION(self._data)
-            self._lastBuildPort = -1
-            return ret
-        
-        elif self._header.m_type == MESSAGE_TYPE.UPS_PORT_CMD_FEEDBACK:
-            debug_info(f"GENERATING PORT_CMD_FEEDBACK for PORT {self._data[3]}", debug=self._debug)
-            ret = PORT_CMD_FEEDBACK(self._data)
-            self._lastBuildPort = ret.m_port
-            return ret
-        
-        elif self._header.m_type == MESSAGE_TYPE.UPS_PORT_VALUE:
-            debug_info(f"GENERATING PORT_VALUE for PORT {self._data[3]}", debug=self._debug)
-            ret = PORT_VALUE(self._data)
-            self._lastBuildPort = ret.m_port
-            return ret
-        
-        elif self._header.m_type == MESSAGE_TYPE.UPS_PORT_NOTIFICATION:
-            debug_info(f"GENERATING DEV_PORT_NOTIFICATION for PORT {self._data[3]}", debug=self._debug)
-            ret = DEV_PORT_NOTIFICATION(self._data)
-            self._lastBuildPort = ret.m_port
-            return ret
-        
-        elif self._header.m_type == MESSAGE_TYPE.UPS_DNS_EXT_SERVER_CMD:
-            if self._data[-1] == PERIPHERAL_EVENT.EXT_SRV_RECV:
-                debug_info(f"GENERATING EXT_SERVER_CMD_ACK for PORT {self._data[3]}", debug=self._debug)
-                ret = EXT_SERVER_CMD_ACK(self._data)
-                return ret
-            else:
-                debug_info(f"GENERATING EXT_SERVER_NOTIFICATION for PORT {self._data[3]}", debug=self._debug)
-                ret = EXT_SERVER_NOTIFICATION(self._data)
-                return ret
-        
-        elif self._header.m_type == MESSAGE_TYPE.UPS_DNS_HUB_ALERT:
-            debug_info(f"GENERATING HUB_ALERT_NOTIFICATION for PORT {self._data[3]}", debug=self._debug)
-            ret = HUB_ALERT_NOTIFICATION(self._data)
-            self._lastBuildPort = ret.m_port
-            return ret
-        else:
-            debug_info(f"EXCEPTION TypeError PORT {self._data[3]}", debug=self._debug)
-            pass
-            
-    @property
-    def lastBuildPort(self) -> int:
-        return self._lastBuildPort
+        dispatch = {
+            int.from_bytes(MESSAGE_TYPE.UPS_DNS_HUB_ACTION, 'little'): HUB_ACTION_NOTIFICATION,
+            int.from_bytes(MESSAGE_TYPE.UPS_HUB_ATTACHED_IO, 'little'): HUB_ATTACHED_IO_NOTIFICATION,
+            int.from_bytes(MESSAGE_TYPE.UPS_HUB_GENERIC_ERROR, 'little'): DEV_GENERIC_ERROR_NOTIFICATION,
+            int.from_bytes(MESSAGE_TYPE.UPS_PORT_CMD_FEEDBACK, 'little'): PORT_CMD_FEEDBACK,
+            int.from_bytes(MESSAGE_TYPE.UPS_PORT_VALUE, 'little'): PORT_VALUE,
+            int.from_bytes(MESSAGE_TYPE.UPS_PORT_NOTIFICATION, 'little'): DEV_PORT_NOTIFICATION,
+            int.from_bytes(MESSAGE_TYPE.UPS_DNS_EXT_SERVER_CMD, 'little'): EXT_SERVER_CMD_ACK
+            if self._data[-1] == PERIPHERAL_EVENT.EXT_SRV_RECV else EXT_SERVER_NOTIFICATION,
+            int.from_bytes(MESSAGE_TYPE.UPS_DNS_HUB_ALERT, 'little'): HUB_ALERT_NOTIFICATION,
+        }
+
+        return dispatch[int.from_bytes(self._header.m_type, 'little')](self._data)
 
 
 def _key_name(cls, value: bytearray):
@@ -135,6 +87,9 @@ class UPSTREAM_MESSAGE:
 
 @dataclass
 class HUB_ACTION_NOTIFICATION(UPSTREAM_MESSAGE):
+    """Holds the data for an Action Notification
+
+    """
     COMMAND: bytearray = field(init=True)
     
     def __post_init__(self):
