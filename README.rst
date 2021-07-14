@@ -1,6 +1,6 @@
-===========
-legoBTLE4PI
-===========
+===================
+Project legoBTLE4PI
+===================
 
 Prosa Introduction
 ==================
